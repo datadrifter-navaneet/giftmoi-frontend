@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GiftMoi — Host Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --gold: #C8961E;
+      --gold-light: #F0C040;
+      --gold-pale: #FDF3D0;
+      --orange: #E8621A;
+      --orange-light: #F5A623;
+      --cream: #FFFBF0;
+      --brown: #5C3A1E;
+      --brown-light: #8B5E3C;
+      --text: #2C1810;
+      --text-muted: #7A5C45;
+      --border: rgba(200, 150, 30, 0.25);
+      --shadow: rgba(200, 130, 20, 0.15);
+      --green: #2E7D32;
+      --green-pale: #E8F5E9;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(240,192,64,0.12) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(232,98,26,0.10) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 40px 0 28px;
+      animation: fadeDown 0.6s ease both;
+    }
+
+    .diya-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      font-size: 28px;
+      letter-spacing: 4px;
+      animation: flicker 3s ease-in-out infinite;
+    }
+
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.85; }
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: -0.5px;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .logo span { color: var(--orange); }
+
+    .tagline {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 300;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* Cards */
+    .card {
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 24px;
+      box-shadow: 0 4px 24px var(--shadow);
+      margin-bottom: 20px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--brown);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Fields */
+    .field { margin-bottom: 18px; }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      background: var(--gold-pale);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      -webkit-appearance: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--gold);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(200,150,30,0.12);
+    }
+
+    select {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A5C45' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--orange) 100%);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 6px 20px rgba(200,130,20,0.35);
+      margin-top: 4px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(200,130,20,0.45);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 13px;
+      background: transparent;
+      color: var(--brown);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 10px;
+    }
+
+    .btn-secondary:hover {
+      background: var(--gold-pale);
+      border-color: var(--gold);
+    }
+
+    /* Auth toggle */
+    .auth-toggle {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .auth-toggle a {
+      color: var(--gold);
+      cursor: pointer;
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    /* Error message */
+    .error-msg {
+      background: #FFF3F3;
+      border: 1px solid #FFCDD2;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #C62828;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .error-msg.visible { display: block; }
+
+    /* User bar */
+    .user-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, #fff8e8, #fff3d0);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 18px;
+      margin-bottom: 20px;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .user-email {
+      font-size: 13px;
+      color: var(--brown);
+      font-weight: 500;
+    }
+
+    .signout-btn {
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      padding: 4px 10px;
+      border-radius: 8px;
+      transition: background 0.15s;
+    }
+
+    .signout-btn:hover { background: rgba(200,150,30,0.1); }
+
+    /* QR section */
+    .qr-container {
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    .qr-container img {
+      width: 200px;
+      height: 200px;
+      border-radius: 12px;
+      border: 3px solid var(--gold-pale);
+      box-shadow: 0 4px 16px var(--shadow);
+      margin-bottom: 16px;
+    }
+
+    .event-id-badge {
+      display: inline-block;
+      background: var(--gold-pale);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 13px;
+      color: var(--brown);
+      font-weight: 500;
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+    }
+
+    .qr-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .qr-btn {
+      flex: 1;
+      min-width: 100px;
+      padding: 11px 8px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--gold-pale);
+      color: var(--brown);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .qr-btn:hover {
+      background: linear-gradient(135deg, var(--gold), var(--orange-light));
+      color: white;
+      border-color: transparent;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(200,150,30,0.3);
+    }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0 20px;
+      color: var(--text-muted);
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Ledger */
+    .ledger-summary {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .summary-box {
+      flex: 1;
+      background: linear-gradient(135deg, #fff8e8, #fff3d0);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .summary-label {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .summary-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--brown);
+    }
+
+    .summary-value.amount { color: var(--green); }
+
+    /* Gift entries */
+    .gift-entry {
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+      background: white;
+      transition: box-shadow 0.2s;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .gift-entry:hover {
+      box-shadow: 0 4px 16px var(--shadow);
+    }
+
+    .gift-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .gift-name {
+      font-weight: 500;
+      font-size: 15px;
+      color: var(--brown);
+    }
+
+    .gift-amount {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--green);
+    }
+
+    .gift-wish {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-style: italic;
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+
+    .gift-time {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .empty-ledger {
+      text-align: center;
+      padding: 32px 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .empty-ledger .icon { font-size: 40px; margin-bottom: 12px; }
+
+    /* New event button */
+    .new-event-btn {
+      width: 100%;
+      padding: 14px;
+      background: transparent;
+      color: var(--gold);
+      border: 1.5px dashed var(--gold);
+      border-radius: 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+
+    .new-event-btn:hover {
+      background: var(--gold-pale);
+    }
+
+    /* Loading spinner */
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Screens */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* Refresh btn */
+    .refresh-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--gold);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      padding: 4px 0;
+    }
+
+    /* Animations */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 360px) {
+      .logo { font-size: 30px; }
+      .summary-value { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="diya-row">🪔 🌸 🪔</div>
+    <div class="logo">Gift<span>Moi</span></div>
+    <div class="tagline">Host Dashboard</div>
+  </div>
+
+  <!-- SCREEN 1: Auth -->
+  <div id="screen-auth" class="screen active">
+    <div class="card">
+      <div class="card-title" id="auth-title">🔐 Sign In</div>
+      <div class="error-msg" id="auth-error"></div>
+
+      <div id="signup-name-field" class="field" style="display:none">
+        <label>Your Name</label>
+        <input type="text" id="signup-name" placeholder="e.g. Rahul Verma" maxlength="60"/>
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="auth-email" placeholder="you@example.com"/>
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="auth-password" placeholder="Min. 6 characters"/>
+      </div>
+
+      <button class="btn-primary" id="auth-btn" onclick="handleAuth()">Sign In</button>
+
+      <div class="auth-toggle">
+        <span id="auth-toggle-text">Don't have an account?</span>
+        <a onclick="toggleAuthMode()"> <span id="auth-toggle-link">Sign Up</span></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: Create Event -->
+  <div id="screen-create" class="screen">
+    <div class="user-bar">
+      <span class="user-email" id="user-email-display"></span>
+      <button class="signout-btn" onclick="signOut()">Sign out</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎉 Create New Event</div>
+      <div class="error-msg" id="create-error"></div>
+
+      <div class="field">
+        <label>Your Name</label>
+        <input type="text" id="host-name" placeholder="e.g. Priya Sharma" maxlength="60"/>
+      </div>
+
+      <div class="field">
+        <label>Your UPI ID</label>
+        <input type="text" id="host-upi" placeholder="e.g. priya@oksbi"/>
+      </div>
+
+      <div class="field">
+        <label>Occasion</label>
+        <select id="host-occasion">
+          <option value="">Select occasion...</option>
+          <option value="🎂 Birthday">🎂 Birthday</option>
+          <option value="💍 Wedding">💍 Wedding</option>
+          <option value="🪔 Diwali">🪔 Diwali</option>
+          <option value="🎓 Graduation">🎓 Graduation</option>
+          <option value="👶 Baby Shower">👶 Baby Shower</option>
+          <option value="🏠 Housewarming">🏠 Housewarming</option>
+          <option value="🎊 Anniversary">🎊 Anniversary</option>
+          <option value="✨ Other">✨ Other</option>
+        </select>
+      </div>
+
+      <button class="btn-primary" id="create-btn" onclick="createGiftEvent()">
+        Generate QR Code
+      </button>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: QR + Ledger -->
+  <div id="screen-event" class="screen">
+    <div class="user-bar">
+      <span class="user-email" id="user-email-display2"></span>
+      <button class="signout-btn" onclick="signOut()">Sign out</button>
+    </div>
+
+    <!-- QR Card -->
+    <div class="card">
+      <div class="card-title">📲 Share Your QR Code</div>
+      <div class="qr-container">
+        <img id="qr-image" src="" alt="QR Code"/>
+        <div class="event-id-badge">Event ID: <span id="event-id-display"></span></div>
+        <div class="qr-actions">
+          <button class="qr-btn" onclick="downloadQR()">⬇ Download</button>
+          <button class="qr-btn" onclick="shareWhatsApp()">💬 WhatsApp</button>
+          <button class="qr-btn" onclick="copyLink()">🔗 Copy Link</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ledger Card -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div class="card-title" style="margin-bottom:0">📋 Gift Ledger</div>
+        <button class="refresh-btn" onclick="loadLedger()">↻ Refresh</button>
+      </div>
+
+      <!-- Summary -->
+      <div class="ledger-summary">
+        <div class="summary-box">
+          <div class="summary-label">Total Gifts</div>
+          <div class="summary-value" id="gift-count">0</div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-label">Total Amount</div>
+          <div class="summary-value amount" id="gift-total">₹0</div>
+        </div>
+      </div>
+
+      <!-- Gift list -->
+      <div id="gift-list"></div>
+    </div>
+
+    <button class="new-event-btn" onclick="showCreateScreen()">+ Create Another Event</button>
+  </div>
+
+</div>
+
+<!-- Firebase SDKs -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signOut as fbSignOut,
+    onAuthStateChanged
+  } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyADrMM_Z1clZXz8ELPiKBBgsdpB8XzBqlY",
+    authDomain: "giftmoi.firebaseapp.com",
+    projectId: "giftmoi",
+    storageBucket: "giftmoi.firebasestorage.app",
+    messagingSenderId: "158905027838",
+    appId: "1:158905027838:web:8f294592e9e6773f0b29af"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const BACKEND = 'https://web-production-e4584.up.railway.app';
+
+  // ── State ──
+  let isSignUp   = false;
+  let currentQR  = null;
+  let currentURL = null;
+  let currentEventId = null;
+
+  // ── Auth state listener ──
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      document.getElementById('user-email-display').textContent  = user.email;
+      document.getElementById('user-email-display2').textContent = user.email;
+      showScreen('screen-create');
+    } else {
+      showScreen('screen-auth');
+    }
+  });
+
+  // ── Show screen ──
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // ── Toggle sign in / sign up ──
+  window.toggleAuthMode = function() {
+    isSignUp = !isSignUp;
+    document.getElementById('auth-title').textContent      = isSignUp ? '✏️ Sign Up' : '🔐 Sign In';
+    document.getElementById('auth-btn').textContent        = isSignUp ? 'Create Account' : 'Sign In';
+    document.getElementById('auth-toggle-text').textContent = isSignUp ? 'Already have an account?' : "Don't have an account?";
+    document.getElementById('auth-toggle-link').textContent = isSignUp ? 'Sign In' : 'Sign Up';
+    document.getElementById('signup-name-field').style.display = isSignUp ? 'block' : 'none';
+    hideError('auth-error');
+  };
+
+  // ── Handle auth ──
+  window.handleAuth = async function() {
+    const email    = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value.trim();
+    const btn      = document.getElementById('auth-btn');
+
+    if (!email || !password) {
+      showError('auth-error', 'Please enter your email and password.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Please wait...';
+
+    try {
+      if (isSignUp) {
+        await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = isSignUp ? 'Create Account' : 'Sign In';
+      const msgs = {
+        'auth/user-not-found':     'No account found with this email.',
+        'auth/wrong-password':     'Incorrect password. Please try again.',
+        'auth/email-already-in-use': 'An account with this email already exists.',
+        'auth/weak-password':      'Password must be at least 6 characters.',
+        'auth/invalid-email':      'Please enter a valid email address.',
+        'auth/invalid-credential': 'Invalid email or password.'
+      };
+      showError('auth-error', msgs[err.code] || 'Something went wrong. Please try again.');
+    }
+  };
+
+  // ── Sign out ──
+  window.signOut = async function() {
+    await fbSignOut(auth);
+    currentQR = null;
+    currentURL = null;
+    currentEventId = null;
+  };
+
+  // ── Create event ──
+  window.createGiftEvent = async function() {
+    const name     = document.getElementById('host-name').value.trim();
+    const upi      = document.getElementById('host-upi').value.trim();
+    const occasion = document.getElementById('host-occasion').value;
+    const btn      = document.getElementById('create-btn');
+
+    if (!name || !upi || !occasion) {
+      showError('create-error', 'Please fill in all fields.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Generating QR...';
+
+    try {
+      const res  = await fetch(`${BACKEND}/event`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ host_name: name, upi_id: upi, occasion })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showError('create-error', data.error || 'Failed to create event.');
+        btn.disabled = false;
+        btn.textContent = 'Generate QR Code';
+        return;
+      }
+
+      currentQR      = data.qr_code;
+      currentURL     = data.qr_url;
+      currentEventId = data.event_id;
+
+      document.getElementById('qr-image').src         = data.qr_code;
+      document.getElementById('event-id-display').textContent = data.event_id;
+
+      btn.disabled = false;
+      btn.textContent = 'Generate QR Code';
+
+      showScreen('screen-event');
+      loadLedger();
+
+    } catch (err) {
+      showError('create-error', 'Network error. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Generate QR Code';
+    }
+  };
+
+  // ── Load ledger ──
+  window.loadLedger = async function() {
+    if (!currentEventId) return;
+
+    const listEl  = document.getElementById('gift-list');
+    const countEl = document.getElementById('gift-count');
+    const totalEl = document.getElementById('gift-total');
+
+    listEl.innerHTML = '<div class="empty-ledger"><div class="icon">⏳</div>Loading gifts...</div>';
+
+    try {
+      const res  = await fetch(`${BACKEND}/ledger/${currentEventId}`);
+      const data = await res.json();
+
+      countEl.textContent = data.gift_count || 0;
+      totalEl.textContent = `₹${(data.total || 0).toLocaleString('en-IN')}`;
+
+      if (!data.gifts || data.gifts.length === 0) {
+        listEl.innerHTML = `
+          <div class="empty-ledger">
+            <div class="icon">🎁</div>
+            No gifts yet. Share your QR code to start receiving!
+          </div>`;
+        return;
+      }
+
+      listEl.innerHTML = data.gifts.map(g => `
+        <div class="gift-entry">
+          <div class="gift-header">
+            <span class="gift-name">${escHtml(g.attendee_name)}</span>
+            <span class="gift-amount">₹${Number(g.amount).toLocaleString('en-IN')}</span>
+          </div>
+          ${g.wish ? `<div class="gift-wish">"${escHtml(g.wish)}"</div>` : ''}
+          <div class="gift-time">${formatTime(g.timestamp)}</div>
+        </div>
+      `).join('');
+
+    } catch (err) {
+      listEl.innerHTML = '<div class="empty-ledger"><div class="icon">⚠️</div>Could not load ledger. Tap refresh to try again.</div>';
+    }
+  };
+
+  // ── Show create screen ──
+  window.showCreateScreen = function() {
+    currentQR = null;
+    currentURL = null;
+    currentEventId = null;
+    document.getElementById('host-name').value     = '';
+    document.getElementById('host-upi').value      = '';
+    document.getElementById('host-occasion').value = '';
+    showScreen('screen-create');
+  };
+
+  // ── QR actions ──
+  window.downloadQR = function() {
+    if (!currentQR) return;
+    const a    = document.createElement('a');
+    a.href     = currentQR;
+    a.download = `giftmoi-qr-${currentEventId}.png`;
+    a.click();
+  };
+
+  window.shareWhatsApp = function() {
+    if (!currentURL) return;
+    const msg = `🎁 Send me a gift via GiftMoi!\nScan or click: ${currentURL}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
+  window.copyLink = function() {
+    if (!currentURL) return;
+    navigator.clipboard.writeText(currentURL).then(() => {
+      const btn = document.querySelector('.qr-btn:nth-child(3)');
+      const orig = btn.innerHTML;
+      btn.innerHTML = '✅ Copied!';
+      setTimeout(() => { btn.innerHTML = orig; }, 2000);
+    });
+  };
+
+  // ── Helpers ──
+  function showError(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.classList.add('visible');
+  }
+
+  function hideError(id) {
+    document.getElementById(id).classList.remove('visible');
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function formatTime(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
+      + ' · ' + d.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+  }
+</script>
+</body>
+</html>
