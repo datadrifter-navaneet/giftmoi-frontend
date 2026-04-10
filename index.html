@@ -31,7 +31,6 @@
       overflow-x: hidden;
     }
 
-    /* Decorative background pattern */
     body::before {
       content: '';
       position: fixed;
@@ -52,7 +51,6 @@
       padding: 0 20px 60px;
     }
 
-    /* Header */
     .header {
       text-align: center;
       padding: 40px 0 32px;
@@ -84,9 +82,7 @@
       margin-bottom: 6px;
     }
 
-    .logo span {
-      color: var(--orange);
-    }
+    .logo span { color: var(--orange); }
 
     .tagline {
       font-size: 13px;
@@ -96,7 +92,6 @@
       text-transform: uppercase;
     }
 
-    /* Event card */
     .event-card {
       background: linear-gradient(135deg, #fff8e8, #fff3d0);
       border: 1.5px solid var(--border);
@@ -113,8 +108,7 @@
     .event-card::before {
       content: '✦';
       position: absolute;
-      top: 12px;
-      left: 16px;
+      top: 12px; left: 16px;
       color: var(--gold-light);
       font-size: 12px;
       opacity: 0.6;
@@ -123,8 +117,7 @@
     .event-card::after {
       content: '✦';
       position: absolute;
-      top: 12px;
-      right: 16px;
+      top: 12px; right: 16px;
       color: var(--gold-light);
       font-size: 12px;
       opacity: 0.6;
@@ -158,7 +151,6 @@
       margin-top: 8px;
     }
 
-    /* Form card */
     .form-card {
       background: white;
       border: 1.5px solid var(--border);
@@ -179,9 +171,7 @@
       gap: 8px;
     }
 
-    .field {
-      margin-bottom: 20px;
-    }
+    .field { margin-bottom: 20px; }
 
     label {
       display: block;
@@ -223,7 +213,6 @@
       line-height: 1.6;
     }
 
-    /* Amount buttons */
     .amount-presets {
       display: flex;
       gap: 8px;
@@ -255,10 +244,7 @@
       box-shadow: 0 4px 12px rgba(200,150,30,0.3);
     }
 
-    /* Emoji picker */
-    .emoji-section {
-      margin-bottom: 20px;
-    }
+    .emoji-section { margin-bottom: 20px; }
 
     .emoji-bar {
       display: flex;
@@ -289,7 +275,6 @@
       box-shadow: 0 2px 8px var(--shadow);
     }
 
-    /* Message preview */
     .message-preview {
       background: linear-gradient(135deg, #fff8e8, #fff3d0);
       border: 1.5px dashed var(--gold-light);
@@ -309,7 +294,6 @@
       animation: fadeIn 0.3s ease;
     }
 
-    /* Submit button */
     .submit-btn {
       width: 100%;
       padding: 18px;
@@ -342,9 +326,7 @@
       box-shadow: 0 10px 28px rgba(200,130,20,0.45);
     }
 
-    .submit-btn:active {
-      transform: translateY(0);
-    }
+    .submit-btn:active { transform: translateY(0); }
 
     .submit-btn .btn-sub {
       display: block;
@@ -356,7 +338,12 @@
       letter-spacing: 0.5px;
     }
 
-    /* Divider */
+    .submit-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     .divider {
       display: flex;
       align-items: center;
@@ -375,7 +362,6 @@
       background: var(--border);
     }
 
-    /* Footer */
     .footer {
       text-align: center;
       margin-top: 32px;
@@ -389,7 +375,6 @@
       font-family: 'Playfair Display', serif;
     }
 
-    /* Success screen */
     .success-screen {
       display: none;
       text-align: center;
@@ -397,9 +382,7 @@
       animation: fadeUp 0.5s ease both;
     }
 
-    .success-screen.visible {
-      display: block;
-    }
+    .success-screen.visible { display: block; }
 
     .success-icon {
       font-size: 64px;
@@ -420,7 +403,6 @@
       line-height: 1.6;
     }
 
-    /* Animations */
     @keyframes fadeDown {
       from { opacity: 0; transform: translateY(-20px); }
       to { opacity: 1; transform: translateY(0); }
@@ -442,7 +424,6 @@
       100% { transform: scale(1); opacity: 1; }
     }
 
-    /* Responsive tweaks */
     @media (max-width: 360px) {
       .logo { font-size: 30px; }
       .preset-btn { font-size: 12px; }
@@ -483,11 +464,11 @@
       <div class="field">
         <label>Gift Amount (₹)</label>
         <div class="amount-presets">
-          <button class="preset-btn" onclick="setAmount(101)">₹101</button>
-          <button class="preset-btn" onclick="setAmount(251)">₹251</button>
-          <button class="preset-btn" onclick="setAmount(501)">₹501</button>
-          <button class="preset-btn" onclick="setAmount(1001)">₹1001</button>
-          <button class="preset-btn" onclick="setAmount(2001)">₹2001</button>
+          <button class="preset-btn" onclick="setAmount(101, this)">₹101</button>
+          <button class="preset-btn" onclick="setAmount(251, this)">₹251</button>
+          <button class="preset-btn" onclick="setAmount(501, this)">₹501</button>
+          <button class="preset-btn" onclick="setAmount(1001, this)">₹1001</button>
+          <button class="preset-btn" onclick="setAmount(2001, this)">₹2001</button>
         </div>
         <input type="number" id="gift-amount" placeholder="Or enter custom amount" min="1" oninput="clearPresets()"/>
       </div>
@@ -555,18 +536,17 @@
   document.getElementById('occasion-tag').textContent = OCCASION;
   document.getElementById('success-host').textContent = HOST_NAME;
 
-  // Amount preset selection
-  function setAmount(val) {
+  // Amount preset selection — fixed to pass button reference directly
+  function setAmount(val, btn) {
     document.getElementById('gift-amount').value = val;
     document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
+    btn.classList.add('active');
   }
 
   function clearPresets() {
     document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
   }
 
-  // Add emoji to wish text
   function addEmoji(emoji) {
     const ta = document.getElementById('wish-text');
     ta.value += emoji;
@@ -574,7 +554,6 @@
     updatePreview();
   }
 
-  // Live message preview
   function updatePreview() {
     const msg = document.getElementById('wish-text').value.trim();
     const preview = document.getElementById('msg-preview');
@@ -608,7 +587,6 @@
       return;
     }
 
-    // Disable button to prevent double submission
     const btn = document.querySelector('.submit-btn');
     btn.disabled = true;
     btn.innerHTML = 'Sending... 🎁';
@@ -634,13 +612,20 @@
         return;
       }
 
+      // DEBUG: show the UPI URL before redirecting — remove this line after testing
+      alert('DEBUG UPI URL: ' + data.upi_url);
+
       // Show success screen
       document.getElementById('main-form').style.display = 'none';
       document.getElementById('success-screen').classList.add('visible');
 
-      // Redirect to UPI app
+      // Redirect to UPI app via anchor click — more reliable on mobile than window.location.href
       setTimeout(() => {
-        window.location.href = data.upi_url;
+        const a = document.createElement('a');
+        a.href = data.upi_url;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
       }, 800);
 
     } catch (err) {
