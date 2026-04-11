@@ -646,7 +646,7 @@
   function buildPayButtons(upiId, hostName, amount) {
     const pa = encodeURIComponent(upiId);
     const pn = encodeURIComponent(hostName);
-    const am = Number(amount).toFixed(2);
+    const am = (Number(amount) * 100).toFixed(0);
     const tn = encodeURIComponent('GiftMoi');
 
     // App-specific Android intent URLs bypass the browser deep link block
