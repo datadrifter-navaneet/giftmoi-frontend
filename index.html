@@ -643,23 +643,27 @@
     }
   }
 
-  function buildPayButtons(upiId, hostName, amount) {
-    const pa = encodeURIComponent(upiId);
-    const pn = encodeURIComponent(hostName);
-    const am = Number(amount).toFixed(2);
-    const tn = encodeURIComponent('GiftMoi');
+  function buildPayButtons(upiUrl, hostName, amount) {
+    // Backend returns properly formatted and encoded upi_url
+    // Parse the URL to extract parameters (they are already encoded)
+    const params = new URLSearchParams(upiUrl.split('?')[1]);
+    const pa = params.get('pa');          // Already encoded from backend
+    const pn = params.get('pn');          // Already encoded from backend
+    const am = params.get('am');          // Amount as string from backend
+    const tn = params.get('tn');          // Already encoded from backend
+    const tr = params.get('tr') || '';    // Transaction ref from backend
 
-    // App-specific Android intent URLs bypass the browser deep link block
-    const gpayUrl  = 'intent://pay?pa=' + pa + '&pn=' + pn + '&am=' + am + '&tn=' + tn + '&cu=INR#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end';
-    const phoneUrl = 'intent://pay?pa=' + pa + '&pn=' + pn + '&am=' + am + '&tn=' + tn + '&cu=INR#Intent;scheme=upi;package=com.phonepe.app;end';
-    const paytmUrl = 'intent://pay?pa=' + pa + '&pn=' + pn + '&am=' + am + '&tn=' + tn + '&cu=INR#Intent;scheme=upi;package=net.one97.paytm;end';
-    const anyUrl   = 'upi://pay?pa=' + pa + '&pn=' + pn + '&am=' + am + '&tn=' + tn + '&cu=INR';
+    // Build intent URLs for app-specific deep links
+    const gpayUrl  = `intent://pay?pa=${pa}&pn=${pn}&am=${am}&tn=${tn}&tr=${tr}&cu=INR#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`;
+    const phoneUrl = `intent://pay?pa=${pa}&pn=${pn}&am=${am}&tn=${tn}&tr=${tr}&cu=INR#Intent;scheme=upi;package=com.phonepe.app;end`;
+    const paytmUrl = `intent://pay?pa=${pa}&pn=${pn}&am=${am}&tn=${tn}&tr=${tr}&cu=INR#Intent;scheme=upi;package=net.one97.paytm;end`;
+    const anyUrl   = upiUrl;  // Use backend URL directly for fallback
 
     document.getElementById('pay-buttons').innerHTML =
-      '<a href="' + gpayUrl  + '" class="pay-btn pay-btn-gpay"><span class="pay-btn-icon">💚</span> Pay via GPay</a>' +
-      '<a href="' + phoneUrl + '" class="pay-btn pay-btn-phone"><span class="pay-btn-icon">💜</span> Pay via PhonePe</a>' +
-      '<a href="' + paytmUrl + '" class="pay-btn pay-btn-paytm"><span class="pay-btn-icon">🔵</span> Pay via Paytm</a>' +
-      '<a href="' + anyUrl   + '" class="pay-btn pay-btn-any"><span class="pay-btn-icon">📱</span> Other UPI App</a>';
+      `<a href="${gpayUrl}" class="pay-btn pay-btn-gpay"><span class="pay-btn-icon">💚</span> Pay via GPay</a>` +
+      `<a href="${phoneUrl}" class="pay-btn pay-btn-phone"><span class="pay-btn-icon">💜</span> Pay via PhonePe</a>` +
+      `<a href="${paytmUrl}" class="pay-btn pay-btn-paytm"><span class="pay-btn-icon">🔵</span> Pay via Paytm</a>` +
+      `<a href="${anyUrl}" class="pay-btn pay-btn-any"><span class="pay-btn-icon">📱</span> Other UPI App</a>`;
   }
 
   async function sendGift() {
@@ -708,14 +712,12 @@
         return;
       }
 
-      // Extract UPI ID from the returned upi_url
-      const upiMatch = data.upi_url.match(/pa=([^&\n]+)/);
-      const upiId    = upiMatch ? decodeURIComponent(upiMatch[1]) : HOST_UPI_ID;
-
       // Show payment selection screen
       document.getElementById('main-form').style.display = 'none';
       document.getElementById('pay-amount-display').textContent = '₹' + Number(amount).toLocaleString('en-IN');
-      buildPayButtons(upiId, HOST_NAME, amount);
+      
+      // Pass the entire upi_url from backend - it's already properly formatted and encoded
+      buildPayButtons(data.upi_url, HOST_NAME, amount);
       document.getElementById('payment-screen').classList.add('visible');
 
     } catch (err) {
