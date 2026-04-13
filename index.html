@@ -643,21 +643,35 @@
     }
   }
 
-  function buildPayButtons(upiUrl, hostName, amount) {
-    // Backend returns properly formatted and encoded upi_url
-    // Parse the URL to extract parameters (they are already encoded)
-    const params = new URLSearchParams(upiUrl.split('?')[1]);
-    const pa = params.get('pa');          // Already encoded from backend
-    const pn = params.get('pn');          // Already encoded from backend
-    const am = params.get('am');          // Amount as string from backend
-    const tn = params.get('tn');          // Already encoded from backend
-    const tr = params.get('tr') || '';    // Transaction ref from backend
+  // ── FIX: buildPayButtons ──
+  // The backend now returns a plain upi:// URL with unencoded values.
+  // We parse it, then encodeURIComponent each param when embedding into
+  // intent:// URLs. This prevents double-encoding (e.g. @ becoming %2540).
+  // We also add S.browser_fallback_url for Android intent robustness.
+  function buildPayButtons(upiUrl) {
+    // Parse the plain upi_url returned by the backend
+    const rawParams = new URLSearchParams(upiUrl.split('?')[1]);
 
-    // Build intent URLs for app-specific deep links
-    const gpayUrl  = `intent://pay?pa=${pa}&pn=${pn}&am=${am}&tn=${tn}&tr=${tr}&cu=INR#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`;
-    const phoneUrl = `intent://pay?pa=${pa}&pn=${pn}&am=${am}&tn=${tn}&tr=${tr}&cu=INR#Intent;scheme=upi;package=com.phonepe.app;end`;
-    const paytmUrl = `intent://pay?pa=${pa}&pn=${pn}&am=${am}&tn=${tn}&tr=${tr}&cu=INR#Intent;scheme=upi;package=net.one97.paytm;end`;
-    const anyUrl   = upiUrl;  // Use backend URL directly for fallback
+    // Encode each value for safe embedding inside the intent:// query string
+    const pa = encodeURIComponent(rawParams.get('pa') || '');
+    const pn = encodeURIComponent(rawParams.get('pn') || '');
+    const am = encodeURIComponent(rawParams.get('am') || '');
+    const tn = encodeURIComponent(rawParams.get('tn') || '');
+    const tr = encodeURIComponent(rawParams.get('tr') || '');
+
+    const intentParams = `pa=${pa}&pn=${pn}&am=${am}&tn=${tn}&tr=${tr}&cu=INR`;
+
+    // Fallback URL shown if the UPI app is not installed
+    const fallback = encodeURIComponent('https://giftmoi.vercel.app');
+
+    // App-specific Android intent URLs
+    const gpayUrl  = `intent://pay?${intentParams}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;S.browser_fallback_url=${fallback};end`;
+    const phoneUrl = `intent://pay?${intentParams}#Intent;scheme=upi;package=com.phonepe.app;S.browser_fallback_url=${fallback};end`;
+    const paytmUrl = `intent://pay?${intentParams}#Intent;scheme=upi;package=net.one97.paytm;S.browser_fallback_url=${fallback};end`;
+
+    // Generic upi:// fallback for iOS and other apps
+    // Re-encode the plain URL for use as a proper href
+    const anyUrl = `upi://pay?${intentParams}`;
 
     document.getElementById('pay-buttons').innerHTML =
       `<a href="${gpayUrl}" class="pay-btn pay-btn-gpay"><span class="pay-btn-icon">💚</span> Pay via GPay</a>` +
@@ -715,9 +729,9 @@
       // Show payment selection screen
       document.getElementById('main-form').style.display = 'none';
       document.getElementById('pay-amount-display').textContent = '₹' + Number(amount).toLocaleString('en-IN');
-      
-      // Pass the entire upi_url from backend - it's already properly formatted and encoded
-      buildPayButtons(data.upi_url, HOST_NAME, amount);
+
+      // Pass the upi_url from backend — buildPayButtons handles all encoding
+      buildPayButtons(data.upi_url);
       document.getElementById('payment-screen').classList.add('visible');
 
     } catch (err) {
