@@ -1,745 +1,249 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GiftMoi — Send a Gift</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <style>
-    :root {
-      --gold: #C8961E;
-      --gold-light: #F0C040;
-      --gold-pale: #FDF3D0;
-      --orange: #E8621A;
-      --orange-light: #F5A623;
-      --cream: #FFFBF0;
-      --brown: #5C3A1E;
-      --brown-light: #8B5E3C;
-      --text: #2C1810;
-      --text-muted: #7A5C45;
-      --border: rgba(200, 150, 30, 0.25);
-      --shadow: rgba(200, 130, 20, 0.15);
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--cream);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        radial-gradient(circle at 20% 20%, rgba(240,192,64,0.12) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(232,98,26,0.10) 0%, transparent 50%),
-        radial-gradient(circle at 50% 50%, rgba(200,150,30,0.05) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .container {
-      position: relative;
-      z-index: 1;
-      max-width: 480px;
-      margin: 0 auto;
-      padding: 0 20px 60px;
-    }
-
-    .header {
-      text-align: center;
-      padding: 40px 0 32px;
-      animation: fadeDown 0.6s ease both;
-    }
-
-    .diya-row {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 16px;
-      font-size: 28px;
-      letter-spacing: 4px;
-      animation: flicker 3s ease-in-out infinite;
-    }
-
-    @keyframes flicker {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.85; }
-    }
-
-    .logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 36px;
-      font-weight: 700;
-      color: var(--gold);
-      letter-spacing: -0.5px;
-      line-height: 1;
-      margin-bottom: 6px;
-    }
-
-    .logo span { color: var(--orange); }
-
-    .tagline {
-      font-size: 13px;
-      color: var(--text-muted);
-      font-weight: 300;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .event-card {
-      background: linear-gradient(135deg, #fff8e8, #fff3d0);
-      border: 1.5px solid var(--border);
-      border-radius: 20px;
-      padding: 24px;
-      margin-bottom: 24px;
-      text-align: center;
-      box-shadow: 0 4px 24px var(--shadow);
-      animation: fadeUp 0.6s 0.1s ease both;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .event-card::before {
-      content: '✦';
-      position: absolute;
-      top: 12px; left: 16px;
-      color: var(--gold-light);
-      font-size: 12px;
-      opacity: 0.6;
-    }
-
-    .event-card::after {
-      content: '✦';
-      position: absolute;
-      top: 12px; right: 16px;
-      color: var(--gold-light);
-      font-size: 12px;
-      opacity: 0.6;
-    }
-
-    .event-label {
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-    }
-
-    .event-name {
-      font-family: 'Playfair Display', serif;
-      font-size: 26px;
-      font-weight: 600;
-      color: var(--brown);
-      margin-bottom: 4px;
-    }
-
-    .event-occasion {
-      display: inline-block;
-      background: linear-gradient(90deg, var(--gold), var(--orange-light));
-      color: white;
-      font-size: 12px;
-      font-weight: 500;
-      padding: 4px 14px;
-      border-radius: 20px;
-      letter-spacing: 0.5px;
-      margin-top: 8px;
-    }
-
-    .form-card {
-      background: white;
-      border: 1.5px solid var(--border);
-      border-radius: 20px;
-      padding: 28px 24px;
-      box-shadow: 0 4px 24px var(--shadow);
-      animation: fadeUp 0.6s 0.2s ease both;
-    }
-
-    .form-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--brown);
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .field { margin-bottom: 20px; }
-
-    label {
-      display: block;
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-    }
-
-    input[type="text"],
-    input[type="number"],
-    textarea {
-      width: 100%;
-      padding: 14px 16px;
-      border: 1.5px solid var(--border);
-      border-radius: 12px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      color: var(--text);
-      background: var(--gold-pale);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-      -webkit-appearance: none;
-    }
-
-    input[type="text"]:focus,
-    input[type="number"]:focus,
-    textarea:focus {
-      border-color: var(--gold);
-      background: white;
-      box-shadow: 0 0 0 3px rgba(200,150,30,0.12);
-    }
-
-    textarea {
-      resize: none;
-      height: 100px;
-      line-height: 1.6;
-    }
-
-    .amount-presets {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-
-    .preset-btn {
-      flex: 1;
-      min-width: 60px;
-      padding: 10px 8px;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      background: var(--gold-pale);
-      color: var(--brown);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.15s;
-      text-align: center;
-    }
-
-    .preset-btn:hover, .preset-btn.active {
-      background: linear-gradient(135deg, var(--gold), var(--orange-light));
-      color: white;
-      border-color: transparent;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(200,150,30,0.3);
-    }
-
-    .emoji-section { margin-bottom: 20px; }
-
-    .emoji-bar {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-
-    .emoji-btn {
-      width: 40px;
-      height: 40px;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      background: var(--gold-pale);
-      font-size: 20px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s;
-      line-height: 1;
-    }
-
-    .emoji-btn:hover {
-      transform: scale(1.15);
-      background: white;
-      border-color: var(--gold);
-      box-shadow: 0 2px 8px var(--shadow);
-    }
-
-    .message-preview {
-      background: linear-gradient(135deg, #fff8e8, #fff3d0);
-      border: 1.5px dashed var(--gold-light);
-      border-radius: 12px;
-      padding: 14px 16px;
-      margin-top: 10px;
-      font-size: 14px;
-      color: var(--brown);
-      min-height: 48px;
-      line-height: 1.6;
-      display: none;
-      font-style: italic;
-    }
-
-    .message-preview.visible {
-      display: block;
-      animation: fadeIn 0.3s ease;
-    }
-
-    .submit-btn {
-      width: 100%;
-      padding: 18px;
-      background: linear-gradient(135deg, var(--gold) 0%, var(--orange) 100%);
-      color: white;
-      border: none;
-      border-radius: 14px;
-      font-family: 'Playfair Display', serif;
-      font-size: 18px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 8px;
-      transition: all 0.2s;
-      box-shadow: 0 6px 20px rgba(200,130,20,0.35);
-      letter-spacing: 0.3px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .submit-btn::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
-      pointer-events: none;
-    }
-
-    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(200,130,20,0.45); }
-    .submit-btn:active { transform: translateY(0); }
-    .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
-
-    .submit-btn .btn-sub {
-      display: block;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 12px;
-      font-weight: 400;
-      opacity: 0.85;
-      margin-top: 2px;
-      letter-spacing: 0.5px;
-    }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 20px 0;
-      color: var(--text-muted);
-      font-size: 12px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
-    .footer {
-      text-align: center;
-      margin-top: 32px;
-      font-size: 12px;
-      color: var(--text-muted);
-      animation: fadeUp 0.6s 0.4s ease both;
-    }
-
-    .footer strong {
-      color: var(--gold);
-      font-family: 'Playfair Display', serif;
-    }
-
-    /* Payment selection screen */
-    .payment-screen {
-      display: none;
-      animation: fadeUp 0.5s ease both;
-    }
-
-    .payment-screen.visible { display: block; }
-
-    .payment-header {
-      text-align: center;
-      padding: 40px 0 24px;
-    }
-
-    .payment-icon { font-size: 56px; margin-bottom: 16px; }
-
-    .payment-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 24px;
-      color: var(--brown);
-      margin-bottom: 8px;
-    }
-
-    .payment-subtitle {
-      color: var(--text-muted);
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .payment-summary {
-      background: linear-gradient(135deg, #fff8e8, #fff3d0);
-      border: 1.5px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 24px;
-      text-align: center;
-      box-shadow: 0 4px 16px var(--shadow);
-    }
-
-    .payment-amount {
-      font-family: 'Playfair Display', serif;
-      font-size: 40px;
-      font-weight: 700;
-      color: var(--gold);
-      margin-bottom: 6px;
-    }
-
-    .payment-to {
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-
-    .payment-to strong { color: var(--brown); }
-
-    .pay-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .pay-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      padding: 16px 20px;
-      border-radius: 14px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 16px;
-      font-weight: 500;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: white;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
-    }
-
-    .pay-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
-    .pay-btn-gpay  { background: #1a73e8; }
-    .pay-btn-phone { background: #5f259f; }
-    .pay-btn-paytm { background: #00baf2; }
-    .pay-btn-any   { background: linear-gradient(135deg, var(--gold), var(--orange)); box-shadow: 0 4px 14px rgba(200,130,20,0.3); }
-    .pay-btn-icon  { font-size: 22px; }
-
-    .pay-note {
-      text-align: center;
-      font-size: 12px;
-      color: var(--text-muted);
-      line-height: 1.6;
-      padding: 0 10px;
-    }
-
-    /* Success screen */
-    .success-screen {
-      display: none;
-      text-align: center;
-      padding: 60px 20px;
-      animation: fadeUp 0.5s ease both;
-    }
-
-    .success-screen.visible { display: block; }
-
-    .success-icon { font-size: 64px; margin-bottom: 20px; animation: bounce 0.6s ease both; }
-
-    .success-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 28px;
-      color: var(--brown);
-      margin-bottom: 10px;
-    }
-
-    .success-msg { color: var(--text-muted); font-size: 15px; line-height: 1.6; }
-
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes bounce {
-      0% { transform: scale(0.5); opacity: 0; }
-      70% { transform: scale(1.1); }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    @media (max-width: 360px) {
-      .logo { font-size: 30px; }
-      .preset-btn { font-size: 12px; }
-    }
-  </style>
-</head>
-<body>
-<div class="container">
-
-  <!-- Header -->
-  <div class="header">
-    <div class="diya-row">🪔 🌸 🪔</div>
-    <div class="logo">Gift<span>Moi</span></div>
-    <div class="tagline">Send love, send a gift</div>
-  </div>
-
-  <!-- Main form -->
-  <div id="main-form">
-    <div class="event-card">
-      <div class="event-label">You're gifting</div>
-      <div class="event-name" id="host-name">Priya Sharma</div>
-      <div class="event-occasion" id="occasion-tag">🎂 Birthday Celebration</div>
-    </div>
-
-    <div class="form-card">
-      <div class="form-title">🎁 Your Gift</div>
-
-      <div class="field">
-        <label>Your Name</label>
-        <input type="text" id="attendee-name" placeholder="e.g. Rahul Verma" maxlength="60"/>
-      </div>
-
-      <div class="field">
-        <label>Gift Amount (₹)</label>
-        <div class="amount-presets">
-          <button class="preset-btn" onclick="setAmount(101, this)">₹101</button>
-          <button class="preset-btn" onclick="setAmount(251, this)">₹251</button>
-          <button class="preset-btn" onclick="setAmount(501, this)">₹501</button>
-          <button class="preset-btn" onclick="setAmount(1001, this)">₹1001</button>
-          <button class="preset-btn" onclick="setAmount(2001, this)">₹2001</button>
-        </div>
-        <input type="number" id="gift-amount" placeholder="Or enter custom amount" min="1" oninput="clearPresets()"/>
-      </div>
-
-      <div class="field">
-        <label>Your Wish</label>
-        <textarea id="wish-text" placeholder="Write a heartfelt message..." oninput="updatePreview()"></textarea>
-      </div>
-
-      <div class="emoji-section">
-        <label>Add a vibe ✨</label>
-        <div class="emoji-bar">
-          <button class="emoji-btn" onclick="addEmoji('🎉')">🎉</button>
-          <button class="emoji-btn" onclick="addEmoji('❤️')">❤️</button>
-          <button class="emoji-btn" onclick="addEmoji('🙏')">🙏</button>
-          <button class="emoji-btn" onclick="addEmoji('🌸')">🌸</button>
-          <button class="emoji-btn" onclick="addEmoji('✨')">✨</button>
-          <button class="emoji-btn" onclick="addEmoji('🪔')">🪔</button>
-          <button class="emoji-btn" onclick="addEmoji('🎂')">🎂</button>
-          <button class="emoji-btn" onclick="addEmoji('💫')">💫</button>
-          <button class="emoji-btn" onclick="addEmoji('🥳')">🥳</button>
-          <button class="emoji-btn" onclick="addEmoji('💐')">💐</button>
-        </div>
-      </div>
-
-      <div class="message-preview" id="msg-preview"></div>
-
-      <div class="divider">Review & Pay</div>
-
-      <button class="submit-btn" onclick="sendGift()">
-        Send Gift via UPI
-        <span class="btn-sub">Choose your UPI app on the next step</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Payment app selection screen -->
-  <div class="payment-screen" id="payment-screen">
-    <div class="payment-header">
-      <div class="payment-icon">🎁</div>
-      <div class="payment-title">Almost there!</div>
-      <div class="payment-subtitle">Your wish has been saved.<br/>Tap your UPI app below to complete the gift.</div>
-    </div>
-
-    <div class="payment-summary">
-      <div class="payment-amount" id="pay-amount-display">₹0</div>
-      <div class="payment-to">Gifting to <strong id="pay-host-name"></strong></div>
-    </div>
-
-    <div class="pay-buttons" id="pay-buttons"></div>
-
-    <p class="pay-note">Amount and recipient are pre-filled.<br/>Your wish is already saved in the ledger.</p>
-  </div>
-
-  <!-- Success screen -->
-  <div class="success-screen" id="success-screen">
-    <div class="success-icon">🎉</div>
-    <div class="success-title">Gift Sent!</div>
-    <p class="success-msg">Your gift and wishes are on their way to <strong id="success-host"></strong>.<br/><br/>May this occasion be filled with joy and love. 🪔</p>
-  </div>
-
-  <div class="footer">
-    Powered by <strong>GiftMoi</strong> &nbsp;·&nbsp; Gifts with heart 🌸
-  </div>
-
-</div>
-
-<script>
-  const params      = new URLSearchParams(window.location.search);
-  const HOST_UPI_ID = params.get('upi')      || 'demo@upi';
-  const HOST_NAME   = params.get('name')     || 'Your Host';
-  const OCCASION    = params.get('occasion') || '🎉 Celebration';
-
-  document.getElementById('host-name').textContent       = HOST_NAME;
-  document.getElementById('occasion-tag').textContent    = OCCASION;
-  document.getElementById('success-host').textContent    = HOST_NAME;
-  document.getElementById('pay-host-name').textContent   = HOST_NAME;
-
-  function setAmount(val, btn) {
-    document.getElementById('gift-amount').value = val;
-    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  }
-
-  function clearPresets() {
-    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-  }
-
-  function addEmoji(emoji) {
-    const ta = document.getElementById('wish-text');
-    ta.value += emoji;
-    ta.focus();
-    updatePreview();
-  }
-
-  function updatePreview() {
-    const msg     = document.getElementById('wish-text').value.trim();
-    const preview = document.getElementById('msg-preview');
-    if (msg.length > 0) {
-      preview.textContent = '"' + msg + '"';
-      preview.classList.add('visible');
-    } else {
-      preview.classList.remove('visible');
-    }
-  }
-
-  // ── FIX: buildPayButtons ──
-  // The backend now returns a plain upi:// URL with unencoded values.
-  // We parse it, then encodeURIComponent each param when embedding into
-  // intent:// URLs. This prevents double-encoding (e.g. @ becoming %2540).
-  // We also add S.browser_fallback_url for Android intent robustness.
-  function buildPayButtons(upiUrl) {
-    // Parse the plain upi_url returned by the backend
-    const rawParams = new URLSearchParams(upiUrl.split('?')[1]);
-
-    // Encode each value for safe embedding inside the intent:// query string
-    const pa = encodeURIComponent(rawParams.get('pa') || '');
-    const pn = encodeURIComponent(rawParams.get('pn') || '');
-    const am = encodeURIComponent(rawParams.get('am') || '');
-    const tn = encodeURIComponent(rawParams.get('tn') || '');
-    const tr = encodeURIComponent(rawParams.get('tr') || '');
-
-    const intentParams = `pa=${pa}&pn=${pn}&am=${am}&tn=${tn}&tr=${tr}&cu=INR`;
-
-    // Fallback URL shown if the UPI app is not installed
-    const fallback = encodeURIComponent('https://giftmoi.vercel.app');
-
-    // App-specific Android intent URLs
-    const gpayUrl  = `intent://pay?${intentParams}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;S.browser_fallback_url=${fallback};end`;
-    const phoneUrl = `intent://pay?${intentParams}#Intent;scheme=upi;package=com.phonepe.app;S.browser_fallback_url=${fallback};end`;
-    const paytmUrl = `intent://pay?${intentParams}#Intent;scheme=upi;package=net.one97.paytm;S.browser_fallback_url=${fallback};end`;
-
-    // Generic upi:// fallback for iOS and other apps
-    // Re-encode the plain URL for use as a proper href
-    const anyUrl = `upi://pay?${intentParams}`;
-
-    document.getElementById('pay-buttons').innerHTML =
-      `<a href="${gpayUrl}" class="pay-btn pay-btn-gpay"><span class="pay-btn-icon">💚</span> Pay via GPay</a>` +
-      `<a href="${phoneUrl}" class="pay-btn pay-btn-phone"><span class="pay-btn-icon">💜</span> Pay via PhonePe</a>` +
-      `<a href="${paytmUrl}" class="pay-btn pay-btn-paytm"><span class="pay-btn-icon">🔵</span> Pay via Paytm</a>` +
-      `<a href="${anyUrl}" class="pay-btn pay-btn-any"><span class="pay-btn-icon">📱</span> Other UPI App</a>`;
-  }
-
-  async function sendGift() {
-    const name    = document.getElementById('attendee-name').value.trim();
-    const amount  = document.getElementById('gift-amount').value.trim();
-    const wish    = document.getElementById('wish-text').value.trim();
-    const eventId = params.get('event_id');
-
-    if (!name) {
-      alert('Please enter your name 🙏');
-      document.getElementById('attendee-name').focus();
-      return;
-    }
-    if (!amount || isNaN(amount) || Number(amount) < 1) {
-      alert('Please enter a valid gift amount ₹');
-      document.getElementById('gift-amount').focus();
-      return;
-    }
-    if (!eventId) {
-      alert('Invalid event link. Please scan the QR code again.');
-      return;
-    }
-
-    const btn = document.querySelector('.submit-btn');
-    btn.disabled = true;
-    btn.innerHTML = 'Saving your gift... 🎁';
-
-    try {
-      const response = await fetch('https://web-production-e4584.up.railway.app/gift', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          event_id:      eventId,
-          attendee_name: name,
-          amount:        Number(amount),
-          wish:          wish
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        alert('Something went wrong: ' + data.error);
-        btn.disabled = false;
-        btn.innerHTML = 'Send Gift via UPI<span class="btn-sub">Choose your UPI app on the next step</span>';
-        return;
-      }
-
-      // Show payment selection screen
-      document.getElementById('main-form').style.display = 'none';
-      document.getElementById('pay-amount-display').textContent = '₹' + Number(amount).toLocaleString('en-IN');
-
-      // Pass the upi_url from backend — buildPayButtons handles all encoding
-      buildPayButtons(data.upi_url);
-      document.getElementById('payment-screen').classList.add('visible');
-
-    } catch (err) {
-      alert('Network error. Please check your connection and try again.');
-      btn.disabled = false;
-      btn.innerHTML = 'Send Gift via UPI<span class="btn-sub">Choose your UPI app on the next step</span>';
-    }
-  }
-</script>
-</body>
-</html>
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import firebase_admin
+from firebase_admin import credentials, firestore
+import qrcode
+import io
+import base64
+import uuid
+import secrets
+import re
+from datetime import datetime
+from decimal import Decimal, ROUND_HALF_UP
+import os
+import json
+import urllib.parse
+
+app = Flask(__name__)
+CORS(app)
+
+# ── Firebase init ──
+# On Railway: reads from FIREBASE_CREDENTIALS environment variable
+# On local machine: reads from serviceAccount.json file
+firebase_creds = os.environ.get('FIREBASE_CREDENTIALS')
+if firebase_creds:
+    cred = credentials.Certificate(json.loads(firebase_creds))
+else:
+    cred = credentials.Certificate('serviceAccount.json')
+
+firebase_admin.initialize_app(cred)
+db = firestore.client()
+
+
+# ─────────────────────────────────────────
+# Helper: sanitize a name for UPI fields
+# Strips everything except alphanumeric + spaces, then trims to max_len.
+# ─────────────────────────────────────────
+def sanitize_name(raw: str, max_len: int = 50) -> str:
+    return re.sub(r'[^a-zA-Z0-9 ]', '', raw).strip()[:max_len]
+
+
+# ─────────────────────────────────────────
+# Helper: format amount as a clean decimal string
+# Uses Decimal to avoid IEEE-754 float precision issues.
+# Returns "501" for whole numbers, "501.50" for fractional.
+# ─────────────────────────────────────────
+def format_amount(raw_amount) -> str:
+    d = Decimal(str(raw_amount)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    if d == d.to_integral_value():
+        return str(int(d))
+    return str(d)
+
+
+# ─────────────────────────────────────────
+# POST /event
+# Host creates a new event.
+# Body: { "host_name": "Rahul", "upi_id": "rahul@oksbi", "occasion": "Birthday" }
+# Returns: { "event_id": "...", "qr_code": "base64 image", "qr_url": "..." }
+# ─────────────────────────────────────────
+@app.route('/event', methods=['POST'])
+def create_event():
+    data = request.get_json()
+
+    # FIX: Sanitize host_name at creation time so Firestore never stores
+    # special characters that would later break UPI URL construction.
+    host_name = sanitize_name(data.get('host_name', ''), max_len=50)
+    upi_id    = data.get('upi_id', '').strip()
+    occasion  = data.get('occasion', '').strip()[:100]
+
+    # FIX: Validate UPI ID format — must contain exactly one '@'
+    if not host_name or not upi_id or upi_id.count('@') != 1:
+        return jsonify({'error': 'host_name and a valid upi_id (format: handle@bank) are required'}), 400
+
+    # FIX: Validate UPI ID contains only safe characters
+    # UPI IDs are alphanumeric + '.', '-', '_' before '@'; alphanumeric after.
+    upi_local, upi_psp = upi_id.split('@')
+    if not re.match(r'^[a-zA-Z0-9.\-_]+$', upi_local) or not re.match(r'^[a-zA-Z0-9]+$', upi_psp):
+        return jsonify({'error': 'Invalid UPI ID format'}), 400
+
+    event_id = str(uuid.uuid4())[:8].upper()
+
+    db.collection('events').document(event_id).set({
+        'host_name':  host_name,   # stored clean
+        'upi_id':     upi_id,
+        'occasion':   occasion,
+        'created_at': datetime.utcnow().isoformat(),
+        'event_id':   event_id
+    })
+
+    base_url     = os.environ.get('FRONTEND_URL', 'https://giftmoi.vercel.app')
+    attendee_url = (
+        f"{base_url}?"
+        f"upi={urllib.parse.quote(upi_id, safe='')}"
+        f"&name={urllib.parse.quote(host_name, safe='')}"
+        f"&occasion={urllib.parse.quote(occasion, safe='')}"
+        f"&event_id={event_id}"
+    )
+
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=10,
+        border=4
+    )
+    qr.add_data(attendee_url)
+    qr.make(fit=True)
+
+    img       = qr.make_image(fill_color='#5C3A1E', back_color='white')
+    buffer    = io.BytesIO()
+    img.save(buffer, format='PNG')
+    qr_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+    return jsonify({
+        'event_id':  event_id,
+        'qr_code':   f'data:image/png;base64,{qr_base64}',
+        'qr_url':    attendee_url,
+        'host_name': host_name,
+        'occasion':  occasion
+    }), 201
+
+
+# ─────────────────────────────────────────
+# POST /gift
+# Attendee submits their gift entry.
+# Body: { "event_id": "...", "attendee_name": "...", "amount": 501, "wish": "..." }
+# Returns: { "success": true, "gift_id": "...", "upi_params": { pa, pn, am, tn, tr, cu } }
+#
+# IMPORTANT: Returns structured upi_params (not a pre-built URL string).
+# The frontend is responsible for encoding each field exactly once when
+# constructing intent:// and upi:// URLs. This eliminates the entire class
+# of double-encoding bugs that previously caused UPI ID corruption.
+# ─────────────────────────────────────────
+@app.route('/gift', methods=['POST'])
+def submit_gift():
+    data = request.get_json()
+
+    event_id      = data.get('event_id', '').strip()
+    attendee_name = data.get('attendee_name', '').strip()
+    amount        = data.get('amount')
+    wish          = data.get('wish', '').strip()
+
+    if not event_id or not attendee_name or not amount:
+        return jsonify({'error': 'event_id, attendee_name and amount are required'}), 400
+
+    # Validate amount is a positive number
+    try:
+        amount_numeric = float(amount)
+        if amount_numeric <= 0:
+            raise ValueError
+    except (ValueError, TypeError):
+        return jsonify({'error': 'amount must be a positive number'}), 400
+
+    event_ref = db.collection('events').document(event_id).get()
+    if not event_ref.exists:
+        return jsonify({'error': 'Event not found'}), 404
+
+    event_data = event_ref.to_dict()
+
+    gift_id = str(uuid.uuid4())[:8]
+    db.collection('events').document(event_id).collection('gifts').document(gift_id).set({
+        'gift_id':       gift_id,
+        'attendee_name': attendee_name,
+        'amount':        amount_numeric,
+        'wish':          wish,
+        'timestamp':     datetime.utcnow().isoformat(),
+        'status':        'attempted'
+    })
+
+    # FIX: Use Decimal to avoid IEEE-754 float precision errors on amount.
+    amount_str = format_amount(amount_numeric)
+
+    # FIX: Transaction note — no spaces, no special characters.
+    # Spaces inside tn caused %20 encoding issues that triggered payment failures
+    # on certain PhonePe and GPay builds. Stripped to pure alphanumeric only.
+    clean_name = re.sub(r'[^a-zA-Z0-9]', '', attendee_name)[:20]
+    note = f"GiftMoi{clean_name}"   # e.g. "GiftMoiRahulVerma" — max ~28 chars
+
+    # FIX: Truly unique transaction reference using CSPRNG (secrets module),
+    # NOT a truncated UUID. Truncating uuid4 to 12 chars collapses the
+    # collision space from 2^122 to ~2^48, causing real-world tr collisions
+    # across concurrent attendees. UPI apps silently report this as
+    # "Transaction limit exceeded" rather than "duplicate transaction".
+    # "GM" prefix + 30 random hex chars = 32 chars total, well within UPI's
+    # 50-char tr limit, and astronomically unlikely to collide.
+    tr = "GM" + secrets.token_hex(15).upper()
+
+    # FIX: Defensive re-sanitize pn in case an older event was stored before
+    # the sanitize-at-creation fix was deployed.
+    clean_pn = sanitize_name(event_data['host_name'], max_len=50)
+
+    # Return structured fields. Frontend encodes each value exactly once.
+    # Do NOT return a pre-built upi:// URL string — that caused the
+    # parse-then-re-encode pipeline that introduced double-encoding bugs.
+    return jsonify({
+        'success':    True,
+        'gift_id':    gift_id,
+        'upi_params': {
+            'pa': event_data['upi_id'],   # raw UPI ID, safe (validated at /event)
+            'pn': clean_pn,               # alphanumeric + spaces only
+            'am': amount_str,             # e.g. "501" or "501.50"
+            'tn': note,                   # alphanumeric only, no spaces
+            'tr': tr,                     # CSPRNG-backed 32-char unique ref
+            'cu': 'INR'
+        }
+    }), 201
+
+
+# ─────────────────────────────────────────
+# GET /ledger/<event_id>
+# Host fetches all gift entries for their event.
+# Returns: { "event": {...}, "gifts": [...], "total": 0000 }
+# ─────────────────────────────────────────
+@app.route('/ledger/<event_id>', methods=['GET'])
+def get_ledger(event_id):
+    event_ref = db.collection('events').document(event_id).get()
+    if not event_ref.exists:
+        return jsonify({'error': 'Event not found'}), 404
+
+    event_data = event_ref.to_dict()
+
+    gifts_ref = db.collection('events').document(event_id).collection('gifts').stream()
+    gifts     = []
+    total     = Decimal('0')
+
+    for gift in gifts_ref:
+        g = gift.to_dict()
+        gifts.append(g)
+        # FIX: Use Decimal for total accumulation to avoid float drift
+        total += Decimal(str(g.get('amount', 0)))
+
+    gifts.sort(key=lambda x: x.get('timestamp', ''), reverse=True)
+
+    return jsonify({
+        'event':      event_data,
+        'gifts':      gifts,
+        'total':      float(total),
+        'gift_count': len(gifts)
+    }), 200
+
+
+# ─────────────────────────────────────────
+# Health check
+# ─────────────────────────────────────────
+@app.route('/', methods=['GET'])
+def health():
+    return jsonify({'status': 'GiftMoi backend is live 🎁'}), 200
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080, debug=False)
