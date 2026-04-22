@@ -566,7 +566,7 @@
 
       <div class="divider">Review & Pay</div>
 
-      <button class="submit-btn" id="submit-btn" onclick="sendGift()">
+      <button class="submit-btn" onclick="sendGift()">
         Send Gift via UPI
         <span class="btn-sub">Choose your UPI app on the next step</span>
       </button>
@@ -605,22 +605,15 @@
 </div>
 
 <script>
-  // ── Read URL params once at page load ──
   const params      = new URLSearchParams(window.location.search);
   const HOST_UPI_ID = params.get('upi')      || 'demo@upi';
   const HOST_NAME   = params.get('name')     || 'Your Host';
   const OCCASION    = params.get('occasion') || '🎉 Celebration';
 
-  document.getElementById('host-name').textContent     = HOST_NAME;
-  document.getElementById('occasion-tag').textContent  = OCCASION;
-  document.getElementById('success-host').textContent  = HOST_NAME;
-  document.getElementById('pay-host-name').textContent = HOST_NAME;
-
-  // ── FIX: Module-level lock to prevent double-tap / double-submit ──
-  // Without this, rapid taps can fire sendGift() twice before the button
-  // disables, creating two Firestore entries and two different tr values
-  // shown on overlapping payment screens.
-  let giftInProgress = false;
+  document.getElementById('host-name').textContent       = HOST_NAME;
+  document.getElementById('occasion-tag').textContent    = OCCASION;
+  document.getElementById('success-host').textContent    = HOST_NAME;
+  document.getElementById('pay-host-name').textContent   = HOST_NAME;
 
   function setAmount(val, btn) {
     document.getElementById('gift-amount').value = val;
@@ -650,34 +643,24 @@
     }
   }
 
-  // ── FIX: buildPayButtons now accepts a structured upi_params object ──
-  // Previously it accepted a pre-built upi:// URL string and then parsed +
-  // re-encoded it — a pipeline that silently broke whenever backend encoding
-  // changed, and caused double-encoding bugs (@ → %2540 inside intent://).
-  //
-  // Now: backend returns raw field values, frontend encodes each value
-  // exactly once here. Clean contract, no ambiguity.
-  //
-  // intent:// URL structure (Android):
-  //   intent://pay?<encoded_params>#Intent;scheme=upi;package=<pkg>;
-  //   S.browser_fallback_url=<fallback>;end
-  //
-  // The S.browser_fallback_url tells Android to open the fallback URL in
-  // the browser if the target app is not installed, instead of crashing.
-  function buildPayButtons(p) {
-    // p = { pa, pn, am, tn, tr, cu } — all raw strings from backend
+  // ── FIX (Issue 5): buildPayButtons accepts a structured fields object ──
+  // Previously this function parsed the upi:// URL string returned by the backend,
+  // which created a fragile parse-then-re-encode pipeline. If the backend ever changed
+  // its encoding strategy the frontend would silently break.
+  // Clean contract: backend returns { upi_fields: { pa, pn, am, tn, tr } } as raw
+  // decoded values; we do a single encodeURIComponent pass here and nowhere else.
+  function buildPayButtons({ pa, pn, am, tn, tr }) {
+    // Single encoding pass — values arrive as plain strings from the JSON response
+    const intentParams = [
+      `pa=${encodeURIComponent(pa)}`,
+      `pn=${encodeURIComponent(pn)}`,
+      `am=${encodeURIComponent(am)}`,
+      `tn=${encodeURIComponent(tn)}`,
+      `tr=${encodeURIComponent(tr)}`,
+      `cu=INR`
+    ].join('&');
 
-    // Encode each field exactly once for safe embedding in query strings
-    const pa = encodeURIComponent(p.pa);
-    const pn = encodeURIComponent(p.pn);
-    const am = encodeURIComponent(p.am);
-    const tn = encodeURIComponent(p.tn);
-    const tr = encodeURIComponent(p.tr);
-    const cu = 'INR'; // always literal, no encoding needed
-
-    const intentParams = `pa=${pa}&pn=${pn}&am=${am}&tn=${tn}&tr=${tr}&cu=${cu}`;
-
-    // Fallback URL if the app is not installed on this device
+    // Fallback URL shown if the UPI app is not installed
     const fallback = encodeURIComponent('https://giftmoi.vercel.app');
 
     // App-specific Android intent URLs
@@ -685,19 +668,24 @@
     const phoneUrl = `intent://pay?${intentParams}#Intent;scheme=upi;package=com.phonepe.app;S.browser_fallback_url=${fallback};end`;
     const paytmUrl = `intent://pay?${intentParams}#Intent;scheme=upi;package=net.one97.paytm;S.browser_fallback_url=${fallback};end`;
 
-    // Generic upi:// fallback — works on iOS UPI apps and desktop browsers
+    // Generic upi:// fallback for iOS and other apps
     const anyUrl = `upi://pay?${intentParams}`;
 
     document.getElementById('pay-buttons').innerHTML =
-      `<a href="${gpayUrl}"  class="pay-btn pay-btn-gpay" ><span class="pay-btn-icon">💚</span> Pay via GPay</a>`   +
+      `<a href="${gpayUrl}" class="pay-btn pay-btn-gpay"><span class="pay-btn-icon">💚</span> Pay via GPay</a>` +
       `<a href="${phoneUrl}" class="pay-btn pay-btn-phone"><span class="pay-btn-icon">💜</span> Pay via PhonePe</a>` +
-      `<a href="${paytmUrl}" class="pay-btn pay-btn-paytm"><span class="pay-btn-icon">🔵</span> Pay via Paytm</a>`  +
-      `<a href="${anyUrl}"   class="pay-btn pay-btn-any"  ><span class="pay-btn-icon">📱</span> Other UPI App</a>`;
+      `<a href="${paytmUrl}" class="pay-btn pay-btn-paytm"><span class="pay-btn-icon">🔵</span> Pay via Paytm</a>` +
+      `<a href="${anyUrl}" class="pay-btn pay-btn-any"><span class="pay-btn-icon">📱</span> Other UPI App</a>`;
   }
 
+  // ── FIX (Issue 6): Module-level lock prevents double-submission ──
+  // Without this, rapid taps before the JS event loop processes btn.disabled
+  // can fire two concurrent /gift requests, leaving an orphaned 'attempted'
+  // entry in Firestore with no way to reconcile it.
+  let giftInProgress = false;
+
   async function sendGift() {
-    // ── FIX: Guard against double-tap before any async work begins ──
-    if (giftInProgress) return;
+    if (giftInProgress) return;   // hard guard — ignore all subsequent taps
     giftInProgress = true;
 
     const name    = document.getElementById('attendee-name').value.trim();
@@ -705,7 +693,6 @@
     const wish    = document.getElementById('wish-text').value.trim();
     const eventId = params.get('event_id');
 
-    // ── Validation — release lock and return early on any failure ──
     if (!name) {
       alert('Please enter your name 🙏');
       document.getElementById('attendee-name').focus();
@@ -724,8 +711,7 @@
       return;
     }
 
-    // Disable button immediately after lock is confirmed (belt + suspenders)
-    const btn = document.getElementById('submit-btn');
+    const btn = document.querySelector('.submit-btn');
     btn.disabled = true;
     btn.innerHTML = 'Saving your gift... 🎁';
 
@@ -744,34 +730,31 @@
       const data = await response.json();
 
       if (!response.ok) {
-        alert('Something went wrong: ' + (data.error || 'Please try again.'));
+        alert('Something went wrong: ' + data.error);
         btn.disabled = false;
         btn.innerHTML = 'Send Gift via UPI<span class="btn-sub">Choose your UPI app on the next step</span>';
-        // FIX: Release lock on error so user can retry
         giftInProgress = false;
         return;
       }
 
-      // ── Transition to payment screen ──
+      // Show payment selection screen
       document.getElementById('main-form').style.display = 'none';
       document.getElementById('pay-amount-display').textContent = '₹' + Number(amount).toLocaleString('en-IN');
 
-      // FIX: Pass the structured upi_params object directly.
-      // The backend no longer returns a pre-built URL string — it returns
-      // raw field values that we encode once here. This eliminates the
-      // parse-then-re-encode pipeline that caused double-encoding.
-      buildPayButtons(data.upi_params);
+      // FIX (Issue 5): Pass structured upi_fields from the backend response.
+      // The backend returns { upi_fields: { pa, pn, am, tn, tr } } as raw decoded
+      // strings. buildPayButtons does a single encodeURIComponent pass — no parsing,
+      // no double-encoding risk.
+      buildPayButtons(data.upi_fields);
       document.getElementById('payment-screen').classList.add('visible');
 
-      // NOTE: We intentionally do NOT reset giftInProgress = true here.
-      // Once the payment screen is shown, the form should never resubmit.
-      // The user must complete payment or reload the page.
+      // Lock stays true after success — payment screen is now showing.
+      // User must complete or close the flow; we don't want back-navigation re-submitting.
 
     } catch (err) {
       alert('Network error. Please check your connection and try again.');
       btn.disabled = false;
       btn.innerHTML = 'Send Gift via UPI<span class="btn-sub">Choose your UPI app on the next step</span>';
-      // FIX: Release lock on network error so user can retry
       giftInProgress = false;
     }
   }
