@@ -366,44 +366,51 @@
       font-family: 'Playfair Display', serif;
     }
 
-    .payment-screen {
+    /* ── Redirecting screen (replaces old payment-screen) ── */
+    .redirecting-screen {
       display: none;
+      text-align: center;
+      padding: 60px 20px;
       animation: fadeUp 0.5s ease both;
     }
 
-    .payment-screen.visible { display: block; }
+    .redirecting-screen.visible { display: block; }
 
-    .payment-header {
-      text-align: center;
-      padding: 40px 0 24px;
+    .redirecting-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      animation: pulse 1.2s ease-in-out infinite;
     }
 
-    .payment-icon { font-size: 56px; margin-bottom: 16px; }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
 
-    .payment-title {
+    .redirecting-title {
       font-family: 'Playfair Display', serif;
-      font-size: 24px;
+      font-size: 26px;
       color: var(--brown);
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
-    .payment-subtitle {
+    .redirecting-subtitle {
       color: var(--text-muted);
       font-size: 14px;
-      line-height: 1.6;
+      line-height: 1.7;
+      margin-bottom: 28px;
     }
 
-    .payment-summary {
+    .redirecting-summary {
       background: linear-gradient(135deg, #fff8e8, #fff3d0);
       border: 1.5px solid var(--border);
       border-radius: 16px;
       padding: 20px;
       margin-bottom: 24px;
-      text-align: center;
       box-shadow: 0 4px 16px var(--shadow);
     }
 
-    .payment-amount {
+    .redirecting-amount {
       font-family: 'Playfair Display', serif;
       font-size: 40px;
       font-weight: 700;
@@ -411,48 +418,57 @@
       margin-bottom: 6px;
     }
 
-    .payment-to { font-size: 14px; color: var(--text-muted); }
-    .payment-to strong { color: var(--brown); }
-
-    .pay-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 20px;
+    .redirecting-to {
+      font-size: 14px;
+      color: var(--text-muted);
     }
 
-    .pay-btn {
-      display: flex;
+    .redirecting-to strong { color: var(--brown); }
+
+    .redirect-btn {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      padding: 16px 20px;
-      border-radius: 14px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 16px;
-      font-weight: 500;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.2s;
+      gap: 10px;
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--orange) 100%);
       color: white;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+      border: none;
+      border-radius: 14px;
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      box-shadow: 0 6px 20px rgba(200,130,20,0.35);
     }
 
-    .pay-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
-    .pay-btn-gpay  { background: #1a73e8; }
-    .pay-btn-phone { background: #5f259f; }
-    .pay-btn-paytm { background: #00baf2; }
-    .pay-btn-any   { background: linear-gradient(135deg, var(--gold), var(--orange)); box-shadow: 0 4px 14px rgba(200,130,20,0.3); }
-    .pay-btn-icon  { font-size: 22px; }
+    .redirect-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(200,130,20,0.45); }
 
-    .pay-note {
-      text-align: center;
+    .razorpay-note {
+      margin-top: 16px;
       font-size: 12px;
       color: var(--text-muted);
       line-height: 1.6;
-      padding: 0 10px;
     }
 
+    .razorpay-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f0f4ff;
+      border: 1px solid #d0d8ff;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11px;
+      color: #3451b2;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+
+    /* ── Success screen ── */
     .success-screen {
       display: none;
       text-align: center;
@@ -505,6 +521,7 @@
     <div class="tagline">Send love, send a gift</div>
   </div>
 
+  <!-- ── Main gift form ── -->
   <div id="main-form">
     <div class="event-card">
       <div class="event-label">You're gifting</div>
@@ -558,33 +575,44 @@
       <div class="divider">Review & Pay</div>
 
       <button class="submit-btn" onclick="sendGift()">
-        Send Gift via UPI
-        <span class="btn-sub">Choose your UPI app on the next step</span>
+        Send Gift
+        <span class="btn-sub">You'll be redirected to Razorpay to complete payment</span>
       </button>
     </div>
   </div>
 
-  <div class="payment-screen" id="payment-screen">
-    <div class="payment-header">
-      <div class="payment-icon">🎁</div>
-      <div class="payment-title">Almost there!</div>
-      <div class="payment-subtitle">Your wish has been saved.<br/>Tap your UPI app below to complete the gift.</div>
+  <!-- ── Redirecting screen ── -->
+  <div class="redirecting-screen" id="redirecting-screen">
+    <div class="redirecting-icon">🎁</div>
+    <div class="redirecting-title">Your wish is saved!</div>
+    <div class="redirecting-subtitle">
+      Tap the button below to complete your gift.<br/>
+      You can pay via UPI, card, or netbanking.
     </div>
 
-    <div class="payment-summary">
-      <div class="payment-amount" id="pay-amount-display">₹0</div>
-      <div class="payment-to">Gifting to <strong id="pay-host-name"></strong></div>
+    <div class="redirecting-summary">
+      <div class="redirecting-amount" id="redirect-amount-display">₹0</div>
+      <div class="redirecting-to">Gifting to <strong id="redirect-host-name"></strong></div>
     </div>
 
-    <div class="pay-buttons" id="pay-buttons"></div>
+    <a id="razorpay-link" href="#" class="redirect-btn" target="_blank" rel="noopener">
+      Complete Payment →
+    </a>
 
-    <p class="pay-note">Amount and recipient are pre-filled.<br/>Your wish is already saved in the ledger.</p>
+    <div class="razorpay-note">
+      Secured by Razorpay &nbsp;·&nbsp; UPI, Cards & Netbanking accepted
+    </div>
+    <div class="razorpay-badge">🔒 Safe &amp; Encrypted Payment</div>
   </div>
 
+  <!-- ── Success screen (shown if returning from Razorpay with ?payment=success) ── -->
   <div class="success-screen" id="success-screen">
     <div class="success-icon">🎉</div>
     <div class="success-title">Gift Sent!</div>
-    <p class="success-msg">Your gift and wishes are on their way to <strong id="success-host"></strong>.<br/><br/>May this occasion be filled with joy and love. 🪔</p>
+    <p class="success-msg">
+      Your gift and wishes are on their way to <strong id="success-host"></strong>.<br/><br/>
+      May this occasion be filled with joy and love. 🪔
+    </p>
   </div>
 
   <div class="footer">
@@ -596,15 +624,22 @@
 <script>
   const BACKEND = 'https://giftmoi-backend.onrender.com';
 
-  const params      = new URLSearchParams(window.location.search);
-  const HOST_UPI_ID = params.get('upi')      || 'demo@upi';
-  const HOST_NAME   = params.get('name')     || 'Your Host';
-  const OCCASION    = params.get('occasion') || '🎉 Celebration';
+  const params    = new URLSearchParams(window.location.search);
+  const HOST_NAME = params.get('name')     || 'Your Host';
+  const OCCASION  = params.get('occasion') || '🎉 Celebration';
 
-  document.getElementById('host-name').textContent     = HOST_NAME;
-  document.getElementById('occasion-tag').textContent  = OCCASION;
-  document.getElementById('success-host').textContent  = HOST_NAME;
-  document.getElementById('pay-host-name').textContent = HOST_NAME;
+  document.getElementById('host-name').textContent      = HOST_NAME;
+  document.getElementById('occasion-tag').textContent   = OCCASION;
+  document.getElementById('success-host').textContent   = HOST_NAME;
+  document.getElementById('redirect-host-name').textContent = HOST_NAME;
+
+  // ── Handle return from Razorpay ──
+  // Razorpay appends ?payment=success (via callback_url we set in backend)
+  if (params.get('payment') === 'success') {
+    document.getElementById('main-form').style.display       = 'none';
+    document.getElementById('redirecting-screen').style.display = 'none';
+    document.getElementById('success-screen').classList.add('visible');
+  }
 
   function setAmount(val, btn) {
     document.getElementById('gift-amount').value = val;
@@ -632,29 +667,6 @@
     } else {
       preview.classList.remove('visible');
     }
-  }
-
-  // Builds payment buttons using the upi_id and host_name returned from backend
-  // All encoding done here in one single pass — no risk of double encoding
-  function buildPayButtons(upiId, hostName, amount) {
-    const pa = encodeURIComponent(upiId);
-    const pn = encodeURIComponent(hostName);
-    const am = encodeURIComponent(Number(amount).toFixed(2));
-    const tn = encodeURIComponent('GiftMoi');
-    const fb = encodeURIComponent('https://giftmoi.vercel.app');
-
-    const base = 'pa=' + pa + '&pn=' + pn + '&am=' + am + '&tn=' + tn + '&cu=INR';
-
-    const gpayUrl  = 'intent://pay?' + base + '#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;S.browser_fallback_url=' + fb + ';end';
-    const phoneUrl = 'intent://pay?' + base + '#Intent;scheme=upi;package=com.phonepe.app;S.browser_fallback_url=' + fb + ';end';
-    const paytmUrl = 'intent://pay?' + base + '#Intent;scheme=upi;package=net.one97.paytm;S.browser_fallback_url=' + fb + ';end';
-    const anyUrl   = 'upi://pay?' + base;
-
-    document.getElementById('pay-buttons').innerHTML =
-      '<a href="' + gpayUrl  + '" class="pay-btn pay-btn-gpay"><span class="pay-btn-icon">💚</span> Pay via GPay</a>' +
-      '<a href="' + phoneUrl + '" class="pay-btn pay-btn-phone"><span class="pay-btn-icon">💜</span> Pay via PhonePe</a>' +
-      '<a href="' + paytmUrl + '" class="pay-btn pay-btn-paytm"><span class="pay-btn-icon">🔵</span> Pay via Paytm</a>' +
-      '<a href="' + anyUrl   + '" class="pay-btn pay-btn-any"><span class="pay-btn-icon">📱</span> Other UPI App</a>';
   }
 
   let giftInProgress = false;
@@ -688,10 +700,10 @@
 
     const btn = document.querySelector('.submit-btn');
     btn.disabled = true;
-    btn.innerHTML = 'Saving your gift... 🎁';
+    btn.innerHTML = 'Creating payment link... 🎁';
 
     try {
-      const response = await fetch(BACKEND + '/gift', {
+      const response = await fetch(BACKEND + '/create-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -707,26 +719,29 @@
       if (!response.ok) {
         alert('Something went wrong: ' + (data.error || 'Please try again.'));
         btn.disabled = false;
-        btn.innerHTML = 'Send Gift via UPI<span class="btn-sub">Choose your UPI app on the next step</span>';
+        btn.innerHTML = 'Send Gift<span class="btn-sub">You\'ll be redirected to Razorpay to complete payment</span>';
         giftInProgress = false;
         return;
       }
 
-      // Extract upi_id from the upi_url returned by backend
-      // upi_url format: upi://pay?pa=ID&pn=NAME&am=AMOUNT&tn=NOTE&cu=INR
-      const upiMatch = data.upi_url ? data.upi_url.match(/pa=([^&\n\r]+)/) : null;
-      const upiId    = upiMatch ? decodeURIComponent(upiMatch[1]) : HOST_UPI_ID;
-
-      // Show payment selection screen
+      // Show redirecting screen with the Razorpay link
       document.getElementById('main-form').style.display = 'none';
-      document.getElementById('pay-amount-display').textContent = '₹' + Number(amount).toLocaleString('en-IN');
-      buildPayButtons(upiId, HOST_NAME, amount);
-      document.getElementById('payment-screen').classList.add('visible');
+      document.getElementById('redirect-amount-display').textContent = '₹' + Number(amount).toLocaleString('en-IN');
+
+      const link = document.getElementById('razorpay-link');
+      link.href = data.payment_url;
+
+      document.getElementById('redirecting-screen').classList.add('visible');
+
+      // Auto-redirect after a short delay (so guest sees the confirmation)
+      setTimeout(() => {
+        window.location.href = data.payment_url;
+      }, 2000);
 
     } catch (err) {
       alert('Network error. Please check your connection and try again.');
       btn.disabled = false;
-      btn.innerHTML = 'Send Gift via UPI<span class="btn-sub">Choose your UPI app on the next step</span>';
+      btn.innerHTML = 'Send Gift<span class="btn-sub">You\'ll be redirected to Razorpay to complete payment</span>';
       giftInProgress = false;
     }
   }
